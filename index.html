@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hand Overlay – Pen Hold Edition</title>
+
+<style>
+  /* ===== 完全透過ベース ===== */
+  html, body {
+    margin: 0;
+    padding: 0;
+    background: transparent;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    font-family: system-ui, sans-serif;
+  }
+
+  /* ===== 手のオーバーレイ ===== */
+  #handArea {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    width: 160px;
+    aspect-ratio: 3 / 4;
+    z-index: 1000;
+    pointer-events: none; /* 操作を邪魔しない */
+  }
+
+  #handArea img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: auto;
+    display: none;        /* 初期は必ず非表示 */
+  }
+
+  /* ===== 操作ボタン ===== */
+  .btns {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 12px;
+    z-index: 2000;
+  }
+
+  button {
+    padding: 10px 18px;
+    border-radius: 20px;
+    border: none;
+    font-size: 16px;
+    background: rgba(60,60,60,0.8);
+    color: #fff;
+  }
+
+  button.active {
+    background: rgba(245,196,0,0.9);
+    color: #000;
+  }
+
+  /* ===== HUD ===== */
+  #hud {
+    position: fixed;
+    top: 10px;
+    left: 10px;
+    background: rgba(0,0,0,0.6);
+    color: #0f0;
+    font-size: 12px;
+    padding: 8px;
+    border-radius: 6px;
+    white-space: pre;
+    z-index: 3000;
+    display: none;
+  }
+</style>
+</head>
+
+<body>
+
+<!-- ===== Hand Images ===== -->
+<div id="handArea">
+  <img id="openHand" src="./hand_open.png">
+  <img id="holdHand" src="./hand_hold.png">
+  <img id="penHand"  src="./hand_pen.png">
+</div>
+
+<!-- ===== Controls ===== -->
+<div class="btns">
+  <button id="btnRelax">RELAX</button>
+  <button id="btnHold">HOLD</button>
+  <button id="btnPen">PEN</button>
+  <button id="btnHUD">HUD</button>
+</div>
+
+<div id="hud"></div>
+
+<script>
+  /* ===== Elements ===== */
+  const openHand = document.getElementById("openHand");
+  const holdHand = document.getElementById("holdHand");
+  const penHand  = document.getElementById("penHand");
+
+  const btnRelax = document.getElementById("btnRelax");
+  const btnHold  = document.getElementById("btnHold");
+  const btnPen   = document.getElementById("btnPen");
+  const btnHUD   = document.getElementById("btnHUD");
+
+  const hud = document.getElementById("hud");
+
+  let state = "";
+  let hudVisible = false;
+
+  function updateHUD(extra="") {
+    hud.textContent =
+      `STATE: ${state}\n` +
+      `open loaded: ${openHand.complete}\n` +
+      `hold loaded: ${holdHand.complete}\n` +
+      `pen  loaded: ${penHand.complete}\n` +
+      `UA:\n${navigator.userAgent}\n` +
+      extra;
+  }
+
+  function setState(next) {
+    state = next;
+
+    /* いったん全部消す（重要） */
+    openHand.style.display = "none";
+    holdHand.style.display = "none";
+    penHand.style.display  = "none";
+
+    btnRelax.classList.remove("active");
+    btnHold.classList.remove("active");
+    btnPen.classList.remove("active");
+
+    if (state === "RELAX") {
+      openHand.style.display = "block";
+      openHand.style.opacity = "0.55";
+      btnRelax.classList.add("active");
+    }
+
+    if (state === "HOLD") {
+      holdHand.style.display = "block";
+      holdHand.style.opacity = "0.55";
+      btnHold.classList.add("active");
+    }
+
+    if (state === "PEN") {
+      penHand.style.display = "block";
+      penHand.style.opacity = "0.55";
+      btnPen.classList.add("active");
+    }
+
+    updateHUD("→ " + state);
+  }
+
+  /* ===== Events ===== */
+  btnRelax.onclick = () => setState("RELAX");
+  btnHold.onclick  = () => setState("HOLD");
+  btnPen.onclick   = () => setState("PEN");
+
+  btnHUD.onclick = () => {
+    hudVisible = !hudVisible;
+    hud.style.display = hudVisible ? "block" : "none";
+    updateHUD("HUD toggled");
+  };
+
+  /* ===== Init ===== */
+  setState("RELAX");
+</script>
+
+</body>
+</html>
