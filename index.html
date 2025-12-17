@@ -25,15 +25,16 @@
     width: 160px;
     aspect-ratio: 3 / 4;
     z-index: 1000;
-    pointer-events: none; /* 操作を邪魔しない */
+    pointer-events: none;
   }
 
   #handArea img {
     position: absolute;
     inset: 0;
     width: 100%;
-    height: auto;
-    display: none;        /* 初期は必ず非表示 */
+    height: 100%;              /* ★FIX：画像ごとの差を吸収 */
+    object-fit: contain;       /* ★FIX：透明余白があっても中央表示 */
+    display: none;
   }
 
   /* ===== 操作ボタン ===== */
@@ -82,7 +83,7 @@
 
 <!-- ===== Hand Images ===== -->
 <div id="handArea">
-  <img id="openHand" src="./hand_openv1.png">
+  <img id="openHand" src="./hand_open.png">
   <img id="holdHand" src="./hand_hold.png">
   <img id="penHand"  src="./hand_pen.png">
 </div>
@@ -126,7 +127,7 @@
   function setState(next) {
     state = next;
 
-    /* いったん全部消す（重要） */
+    /* いったん全部消す（保存版仕様） */
     openHand.style.display = "none";
     holdHand.style.display = "none";
     penHand.style.display  = "none";
